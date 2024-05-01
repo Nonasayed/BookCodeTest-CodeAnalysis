@@ -138,20 +138,27 @@ void Login_Show() {
 // Login BeforeShow Event begin
 // Login BeforeShow Event end
 
-	if (Login_logged) {
-		// User logged in		
-		Login_login.Text = "Logout";
-		Login_trpassword.Visible = false;
-		Login_trname.Visible = false;
-		Login_labelname.Visible = true;
-		Login_labelname.Text = Utility.Dlookup("members", "member_login", "member_id=" + Session["UserID"]) + "&nbsp;&nbsp;&nbsp;";
-	} else {
-		// User is not logged in
-		Login_login.Text = "Login";
-		Login_trpassword.Visible = true;
-		Login_trname.Visible = true;
-		Login_labelname.Visible = false;
-	}
+if (Login_logged)
+{
+    // User logged in		
+    Login_login.Text = "Logout";
+    Login_trpassword.Visible = false;
+    Login_trname.Visible = false;
+    Login_labelname.Visible = true;
+    
+    // Encode the user name to prevent XSS attacks
+    string userName = HttpUtility.HtmlEncode(Utility.Dlookup("members", "member_login", "member_id=" + Session["UserID"]));
+    Login_labelname.Text = userName + "&nbsp;&nbsp;&nbsp;";
+}
+else
+{
+    // User is not logged in
+    Login_login.Text = "Login";
+    Login_trpassword.Visible = true;
+    Login_trname.Visible = true;
+    Login_labelname.Visible = false;
+}
+
 	
 // Login Close Event begin
 // Login Close Event end
