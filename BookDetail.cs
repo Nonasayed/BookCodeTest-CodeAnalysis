@@ -581,18 +581,32 @@ if (Int16.Parse(Rating_rating_view.Text)==0){
 	        sSQL = sSQL + " where " + sWhere;
 		
 // Rating Update Event begin
-sSQL="update items set rating=rating+" + Rating_rating.SelectedItem.Value + ", rating_count=rating_count+1 where item_id=" + Rating_item_id.Value;
+// Construct the SQL query with parameter placeholders
+sSQL = "UPDATE items SET rating = rating + ?, rating_count = rating_count + 1 WHERE item_id = ?";
+
 // Rating Update Event end
-Rating_BeforeSQLExecute(sSQL,"Update");
-		OleDbCommand cmd = new OleDbCommand(sSQL, Utility.Connection);
-			try {
-				cmd.ExecuteNonQuery();
-			} catch(Exception e) {
-				Rating_ValidationSummary.Text += e.Message;
-				Rating_ValidationSummary.Visible = true;
-				return false;
-			}
-		}
+Rating_BeforeSQLExecute(sSQL, "Update");
+
+using (OleDbCommand cmd = new OleDbCommand(sSQL, Utility.Connection))
+{
+    // Add parameters and set their values
+    cmd.Parameters.AddWithValue("@ratingIncrement", Rating_rating.SelectedItem.Value);
+    cmd.Parameters.AddWithValue("@itemID", Rating_item_id.Value);
+    
+    try
+    {
+        // Execute the parameterized query
+        cmd.ExecuteNonQuery();
+    }
+    catch (Exception e)
+    {
+        // Handle exceptions and display error messages
+        Rating_ValidationSummary.Text += e.Message;
+        Rating_ValidationSummary.Visible = true;
+        return false;
+    }
+}
+
 	        
 		if (bResult){
 // Rating AfterUpdate Event begin
