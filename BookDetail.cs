@@ -383,7 +383,7 @@ bool Order_insert_Click(Object Src, EventArgs E) {
 // Order Insert Event end
 
 
-		if (sSQL.Length == 0)
+if (sSQL.Length == 0)
 {
     sSQL = "INSERT INTO orders (member_id, quantity, item_id) VALUES (?, ?, ?)";
 }
@@ -396,15 +396,15 @@ using (OleDbCommand cmd = new OleDbCommand(sSQL, Utility.Connection))
     cmd.Parameters.AddWithValue("@item_id", p2_item_id);
     
     // Execute the query
-    cmd.ExecuteNonQuery();
-}
-			try {
-				cmd.ExecuteNonQuery();
+   try {
+			cmd.ExecuteNonQuery();
 			} catch(Exception e) {
 				Order_ValidationSummary.Text += e.Message;
 				Order_ValidationSummary.Visible = true;
 				return false;
 			}
+}
+			
 			
 // Order AfterInsert Event begin
 // Order AfterInsert Event end
