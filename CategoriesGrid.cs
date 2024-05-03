@@ -206,15 +206,33 @@ ICollection Categories_CreateDataSource() {
 	    if (iTmpI > 1) Categories_sCountSQL = Categories_sCountSQL.Substring(0, iTmpI);
 	  }
 	  
-	  
-	//-------------------------------
 	
-	OleDbDataAdapter command = new OleDbDataAdapter(Categories_sSQL, Utility.Connection);
-	DataSet ds = new DataSet();
-	
-	command.Fill(ds, (i_Categories_curpage - 1) * Categories_PAGENUM, Categories_PAGENUM,"Categories");
-	OleDbCommand ccommand = new OleDbCommand(Categories_sCountSQL, Utility.Connection);
-	int PageTemp=(int)ccommand.ExecuteScalar();
+	// Validate user input before constructing the SQL query
+	if (!IsValidPageNumber(i_Categories_curpage) || !IsValidPageNumber(Categories_PAGENUM))
+	{
+ 	   // Handle invalid input (e.g., log error, return default data)
+   	 return null;
+	}
+
+	// Construct parameterized SQL query for fetching data
+	string categoriesQuery = "SELECT * FROM Categories OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+
+	using (OleDbConnection connection = new OleDbConnection(Utility.Connection))
+	{
+ 	   connection.Open();
+    
+ 	   // Create and configure data adapter with parameterized query
+ 	   using (OleDbDataAdapter command = new OleDbDataAdapter(categoriesQuery, connection))
+  	  {
+    	    command.SelectCommand.Parameters.AddWithValue("@Offset", (i_Categories_curpage - 1) * Categories_PAGENUM);
+    	    command.SelectCommand.Parameters.AddWithValue("@PageSize", Categories_PAGENUM);
+
+     	   // Fill dataset with data
+      	  DataSet ds = new DataSet();
+       	 command.Fill(ds, "Categories");
+     	   return ds;
+    	}
+	}
 	Categories_Pager.MaxPage=(PageTemp%Categories_PAGENUM)>0?(int)(PageTemp/Categories_PAGENUM)+1:(int)(PageTemp/Categories_PAGENUM);
 	bool AllowScroller=Categories_Pager.MaxPage==1?false:true;
 	
